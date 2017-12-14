@@ -4,8 +4,8 @@ const getTokenForUser = require('../services/token');
 const colors = require('colors');
 
 const createUser = (req, res) => {
-  console.log(`req.body.username: ${req.body.username} 
-      password: ${req.body.password}`.green);
+ // console.log(`req.body.username: ${req.body.username} 
+  //    password: ${req.body.password}`.green);
   const user = new User(req.body);
   user.save((err, user) => {
     if (err) return res.send(err);

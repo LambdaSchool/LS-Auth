@@ -6,22 +6,25 @@ const { ExtractJwt } = require('passport-jwt');
 const LocalStrategy = require('passport-local');
 
 const localOptions = {
-  usernameField: 'username',
+  usernameField: 'username'
 };
 
-const localLogin = new LocalStrategy(localOptions, (username, password, done) => {
-  User.findOne({ username }, (err, user) => {
-    console.log(`localLogin username: ${username} password: ${password} err: ${err}
-        user: ${user}`);
-    if (err) return done(err);
-    if (!user) return done(null, false);
-    user.checkPassword(password, (err, isMatch) => {
+const localLogin = new LocalStrategy(
+  localOptions,
+  (username, password, done) => {
+    User.findOne({ username }, (err, user) => {
+      // console.log(`localLogin username: ${username} password: ${password} err: ${err}
+      //  user: ${user}`);
       if (err) return done(err);
-      if (!isMatch) return done(null, false);
-      return done(null, user);
+      if (!user) return done(null, false);
+      user.checkPassword(password, (err, isMatch) => {
+        if (err) return done(err);
+        if (!isMatch) return done(null, false);
+        return done(null, user);
+      });
     });
-  });
-});
+  }
+);
 
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromHeader('authorization'),
@@ -29,7 +32,7 @@ const jwtOptions = {
 };
 
 const jwtLogin = new JwtStrategy(jwtOptions, (payload, done) => {
-  console.log(`payload.sub ${payload.sub}`);
+  // console.log(`payload.sub ${payload.sub}`);
   User.findById(payload.sub, (err, user) => {
     if (err) return done(err, false);
     if (user) return done(null, user);
@@ -37,10 +40,18 @@ const jwtLogin = new JwtStrategy(jwtOptions, (payload, done) => {
   });
 });
 
+const logOut = () => {
+  try {
+    console.log(`typeof logout ${typeof passport.logOut}`);
+  } catch (err) {
+    console.log('logOut err:', err);
+  }
+};
 passport.use(jwtLogin);
 passport.use(localLogin);
 
 module.exports = {
   requireAuth: passport.authenticate('jwt', { session: false }),
   requireSignIn: passport.authenticate('local', { session: false }),
+  logOut
 };
